@@ -12,7 +12,7 @@ class Game:
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption('Jumper')
         self.clock = pygame.time.Clock()
-        self.level = Level(level_map, self.screen)
+        self.level = Level(self.screen)
 
     def run(self):
         while True:
@@ -22,6 +22,7 @@ class Game:
                     sys.exit()
 
             self.screen.fill('blue')
+            self.level.draw_bg(self.screen)
             self.level.run()
 
             pygame.display.update()
