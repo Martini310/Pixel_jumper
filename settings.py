@@ -1,4 +1,4 @@
-FPS = 60
+FPS = 80
 screen_width = 800
 screen_height = 900
 max_platforms = 10

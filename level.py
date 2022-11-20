@@ -11,9 +11,16 @@ class Level:
         # level setup
         self.display_surface = surface
         self.platform_group = pygame.sprite.Group()
-        # self.setup_level()
         self.world_shift = 0
-        self.current_y = 0
+        self.score = 0
+        self.game_over = False
+
+        # fade effect
+        self.fade_counter = 0
+
+        # import fonts
+        self.font_small = pygame.font.Font('fonts/Pixeltype.ttf', 64)
+        self.font_big = pygame.font.Font('fonts/Pixeltype.ttf', 100)
 
         # Background image
         self.bg_image = pygame.image.load('graphics/bg.png').convert_alpha()
@@ -34,9 +41,9 @@ class Level:
         player_y = player.rect.centery
         direction_y = player.direction.y
 
-        if player_y < 300 and direction_y < 0:
+        if player_y < 200 and direction_y < 0:
             self.world_shift = -direction_y
-            player.rect.centery = 300
+            player.rect.centery = 200
             self.bg_scroll -= direction_y // 2
             if self.bg_scroll > screen_height:
                 self.bg_scroll = 0
@@ -74,21 +81,63 @@ class Level:
 
     def run(self):
 
-        # Generate platforms
-        if len(self.platform_group) < max_platforms:
-            p_w = random.randint(100, 150)
-            p_x = random.randint(0, screen_width - p_w)
-            p_y = self.platform.rect.y - random.randint(180, 240)
-            self.platform = Tile(p_x, p_y, p_w)
-            self.platform_group.add(self.platform)
+        if not self.game_over:
+            # Generate platforms
+            if len(self.platform_group) < max_platforms:
+                p_w = random.randint(100, 150)
+                p_x = random.randint(0, screen_width - p_w)
+                p_y = self.platform.rect.y - random.randint(180, 240)
+                self.platform = Tile(p_x, p_y, p_w)
+                self.platform_group.add(self.platform)
 
-        # level tiles
-        self.platform_group.update(self.world_shift)
-        self.platform_group.draw(self.display_surface)
-        self.scroll_y()
+            # level tiles
+            self.platform_group.update(self.world_shift)
+            self.platform_group.draw(self.display_surface)
+            self.scroll_y()
 
-        # player
-        self.player.update()
-        self.horizontal_movement()
-        self.vertical_movement()
-        self.player.draw(self.display_surface)
+            # player
+            self.player.update()
+            self.horizontal_movement()
+            self.vertical_movement()
+            self.player.draw(self.display_surface)
+
+            if self.player.sprite.rect.top > screen_height:
+                self.game_over = True
+        else:
+            self.platform_group.draw(self.display_surface)
+            if self.fade_counter < screen_width:
+                self.fade_counter += 5
+                for y in range(0, 6, 2):
+                    pygame.draw.rect(self.display_surface,
+                                     'black',
+                                     (0, y * (screen_height / 6),
+                                      self.fade_counter,
+                                      screen_height / 6))
+                    pygame.draw.rect(self.display_surface,
+                                     'black',
+                                     (screen_width - self.fade_counter, (y + 1) * (screen_height / 6),
+                                      screen_width,
+                                      screen_height / 6))
+
+            if self.fade_counter >= screen_width:
+                self.display_surface.fill('black')
+                self.draw_text('GAME OVER!', self.font_big, 'white', 240, 300)
+                self.draw_text(f'SCORE: {self.score}', self.font_big, 'white', 270, 380)
+                self.draw_text('Press SPACE to play again', self.font_small, 'white', 160, 460)
+
+            if pygame.key.get_pressed()[pygame.K_SPACE]:
+                # restart game
+                self.game_over = False
+                self.score = 0
+                self.fade_counter = 0
+                # reset platforms
+                self.platform_group.empty()
+                # reposition player
+                self.player.sprite.rect.centery = 800
+                # set ground
+                self.platform = Tile(0, screen_height - 32, screen_width)
+                self.platform_group.add(self.platform)
+
+    def draw_text(self, text, font, text_col, x, y):
+        img = font.render(text, True, text_col)
+        self.display_surface.blit(img, (x, y))
