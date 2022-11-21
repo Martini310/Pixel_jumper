@@ -101,6 +101,10 @@ class Level:
             self.vertical_movement()
             self.player.draw(self.display_surface)
 
+            # score
+            self.display_score(f'SCORE: {int(self.score / 100)}', self.font_small, 'black', 10, 10)
+            self.score += self.world_shift
+
             if self.player.sprite.rect.top > screen_height:
                 self.game_over = True
         else:
@@ -111,18 +115,16 @@ class Level:
                     pygame.draw.rect(self.display_surface,
                                      'black',
                                      (0, y * (screen_height / 6),
-                                      self.fade_counter,
-                                      screen_height / 6))
+                                      self.fade_counter, screen_height / 6))
                     pygame.draw.rect(self.display_surface,
                                      'black',
                                      (screen_width - self.fade_counter, (y + 1) * (screen_height / 6),
-                                      screen_width,
-                                      screen_height / 6))
+                                      screen_width, screen_height / 6))
 
             if self.fade_counter >= screen_width:
                 self.display_surface.fill('black')
                 self.draw_text('GAME OVER!', self.font_big, 'white', 240, 300)
-                self.draw_text(f'SCORE: {self.score}', self.font_big, 'white', 270, 380)
+                self.draw_text(f'SCORE: {int(self.score / 100)}', self.font_big, 'white', 270, 380)
                 self.draw_text('Press SPACE to play again', self.font_small, 'white', 160, 460)
 
             if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -139,5 +141,9 @@ class Level:
                 self.platform_group.add(self.platform)
 
     def draw_text(self, text, font, text_col, x, y):
+        img = font.render(text, True, text_col)
+        self.display_surface.blit(img, (x, y))
+
+    def display_score(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
         self.display_surface.blit(img, (x, y))
