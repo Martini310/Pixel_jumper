@@ -3,6 +3,7 @@ from player import Player
 from tile import Tile
 from settings import *
 import random
+from support import set_scroll_speed
 
 
 class Level:
@@ -29,6 +30,7 @@ class Level:
 
         # Create ground
         self.platform = Tile(0, screen_height - 32, screen_width)
+        self.platform.moving_left = None
         self.platform_group.add(self.platform)
 
         # Create player
@@ -48,7 +50,11 @@ class Level:
             if self.bg_scroll > screen_height:
                 self.bg_scroll = 0
         else:
-            self.world_shift = 0
+            scroll = set_scroll_speed(int(self.score / 100))
+            self.world_shift = scroll[0]
+            self.bg_scroll += scroll[1]
+            if self.bg_scroll > screen_height:
+                self.bg_scroll = 0
 
     def horizontal_movement(self):
         player = self.player.sprite
@@ -63,17 +69,26 @@ class Level:
         player.apply_gravity()
 
         for sprite in self.platform_group.sprites():
-            if sprite.rect.colliderect(player.rect.x, player.rect.y, 80, 80):
+            if self.score > 100:
+                sprite.platform_speed = 2
+            if sprite.rect.colliderect(player.rect.x, player.rect.y, 80, 90):
                 if player.rect.bottom < sprite.rect.centery:
-                    if player.direction.y > 0:
+                    if player.direction.y >= 0:
+                        # player stand on platform
                         player.rect.bottom = sprite.rect.top
                         player.direction.y = 0
                         player.on_ground = True
+                        # player move with platform
+                        if sprite.moving_left == True:
+                            player.rect.x -= sprite.platform_speed
+                        if sprite.moving_left == False:
+                            player.rect.x += sprite.platform_speed
+
 
         if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False
-        if player.on_ceiling and player.direction.y > 0:
-            player.on_ceiling = False
+        # if player.on_ceiling and player.direction.y > 0:
+        #     player.on_ceiling = False
 
     def draw_bg(self, screen):
         screen.blit(self.bg_image, (0, 0 + self.bg_scroll))
@@ -125,9 +140,9 @@ class Level:
                 self.display_surface.fill('black')
                 self.draw_text('GAME OVER!', self.font_big, 'white', 240, 300)
                 self.draw_text(f'SCORE: {int(self.score / 100)}', self.font_big, 'white', 270, 380)
-                self.draw_text('Press SPACE to play again', self.font_small, 'white', 160, 460)
+                self.draw_text('Press R to play again', self.font_small, 'white', 200, 460)
 
-            if pygame.key.get_pressed()[pygame.K_SPACE]:
+            if pygame.key.get_pressed()[pygame.K_r]:
                 # restart game
                 self.game_over = False
                 self.score = 0
@@ -138,6 +153,7 @@ class Level:
                 self.player.sprite.rect.centery = 800
                 # set ground
                 self.platform = Tile(0, screen_height - 32, screen_width)
+                self.platform.moving_left = None
                 self.platform_group.add(self.platform)
 
     def draw_text(self, text, font, text_col, x, y):

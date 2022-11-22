@@ -1,5 +1,6 @@
 from os import walk
 import pygame
+from settings import *
 
 
 def import_folder(path):
@@ -15,3 +16,22 @@ def import_folder(path):
                 surface_list.append(image_surf)
 
     return surface_list
+
+
+def set_scroll_speed(score):
+    if score > 175:
+        return scroll_speed[175]
+    elif score > 150:
+        return scroll_speed[150]
+    elif score > 125:
+        return scroll_speed[125]
+    elif score > 100:
+        return scroll_speed[100]
+    elif score > 75:
+        return scroll_speed[75]
+    elif score > 50:
+        return scroll_speed[50]
+    elif score > 20:
+        return scroll_speed[20]
+    else:
+        return [0, 0]
