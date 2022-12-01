@@ -17,6 +17,14 @@ class Level:
         self.game_over = False
         self.highscores = None
 
+        # Sounds
+        self.bg_music = pygame.mixer.Sound("sounds/music.ogg")
+        self.bg_music.set_volume(0.4)
+        self.bg_music.play(loops=-1)
+        self.dead_sound = pygame.mixer.Sound("sounds/death.wav")
+        self.end_game_sound = pygame.mixer.Sound("sounds/round_end.wav")
+        self.end_game_sound.set_volume(0.4)
+
         # fade effect
         self.fade_counter = 0
 
@@ -124,6 +132,7 @@ class Level:
             if self.player.sprite.rect.top > screen_height:
                 self.game_over = True
                 self.highscores = highscores(int(self.score / 100))
+                self.dead_sound.play()
         else:  # GAME OVER
             self.draw_bg(self.display_surface)
             self.platform_group.draw(self.display_surface)
@@ -139,7 +148,8 @@ class Level:
                                      'black',
                                      (screen_width - self.fade_counter, (y + 1) * (screen_height / 6),
                                       screen_width, screen_height / 6))
-
+            if self.fade_counter == 200:
+                self.end_game_sound.play()
             # Credits
             if self.fade_counter >= screen_width:
                 self.display_surface.fill('black')

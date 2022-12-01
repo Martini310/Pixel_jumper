@@ -7,6 +7,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         self.display_surface = surface
+        self.jump_sound = pygame.mixer.Sound('sounds/jump.flac')
+        self.jump_sound.set_volume(2)
 
         # player animation variables
         self.character_path = path
@@ -87,6 +89,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         self.direction.y = self.jump_speed
+        self.jump_sound.play()
 
     def update(self):
         self.get_input()
