@@ -3,19 +3,20 @@ from support import *
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface):
+    def __init__(self, pos, surface, path):
         super().__init__()
 
         self.display_surface = surface
 
         # player animation variables
+        self.character_path = path
         self.import_character_assets()
         self.frame_index = 0
         self.animation_speed = 0.1
 
         # Player image
         self.image = self.animations['idle'][self.frame_index]
-        self.image = pygame.transform.scale(self.image, (80, 80))
+        self.image = pygame.transform.scale(self.image, (60, 60))
         self.rect = self.image.get_rect(midbottom=pos)
 
         # player movement
@@ -31,11 +32,10 @@ class Player(pygame.sprite.Sprite):
         self.facing_right = True
 
     def import_character_assets(self):
-        character_path = 'graphics/player/'
-        self.animations = {'idle': [], 'run': [], 'jump': [], 'fall': []}
+        self.animations = {'idle': [], 'idle2': [], 'run': [], 'jump': [], 'fall': []}
 
         for animation in self.animations.keys():
-            full_path = character_path + animation
+            full_path = self.character_path + animation
             self.animations[animation] = import_folder(full_path)
 
     def animate(self):

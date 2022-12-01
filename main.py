@@ -2,6 +2,7 @@ import sys
 import pygame
 from settings import *
 from level import Level
+from menu import Menu
 
 
 class Game:
@@ -13,6 +14,7 @@ class Game:
         pygame.display.set_caption('Jumper')
         self.clock = pygame.time.Clock()
         self.level = Level(self.screen)
+        self.menu = Menu(self.screen)
 
     def run(self):
         while True:
@@ -20,10 +22,12 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
-            self.screen.fill('blue')
-            self.level.draw_bg(self.screen)
-            self.level.run()
+            if self.menu.active:
+                self.menu.run()
+            else:
+                self.level.player_sprite.character_path = self.menu.player_graph
+                self.level.player_sprite.import_character_assets()
+                self.level.run()
 
             pygame.display.update()
             self.clock.tick(FPS)
