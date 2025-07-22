@@ -5,6 +5,30 @@ from settings import *
 import random
 from support import set_scroll_speed, highscores
 
+import pathlib, sys, os
+
+BASE_DIR = pathlib.Path(__file__).parent
+if sys.platform == "emscripten":          # działa w przeglądarce
+    os.chdir(BASE_DIR)                    # ← aby względne ścieżki działały
+
+def load_background_music(stem: str, volume=0.4):
+    """
+    Ładuje plik 'sounds/<stem>.ogg' ➜ fallback '.mp3' ➜ brak muzyki.
+    Zwraca True, jeśli któryś format się wczytał.
+    """
+    snd_path = BASE_DIR / "sounds"
+    for ext in (".ogg", ".mp3"):          # kolejne próby
+        file = snd_path / f"{stem}{ext}"
+        if file.exists():
+            try:
+                print(f'file {file}')
+                pygame.mixer.music.load(str(file))
+                pygame.mixer.music.set_volume(volume)
+                return True
+            except pygame.error:
+                continue                  # dekoder w przeglądarce nie obsługuje
+    print("⚠️  Muzyka w tle wyłączona – brak kompatybilnego formatu")
+    return False
 
 class Level:
     def __init__(self, surface):
@@ -18,9 +42,10 @@ class Level:
         self.highscores = None
 
         # Sounds
+        # Load music but do not play it yet. Use .ogg for better browser compatibility.
         self.bg_music = pygame.mixer.Sound("sounds/music.ogg")
         self.bg_music.set_volume(0.4)
-        self.bg_music.play(loops=-1)
+        self.music_started = False
         self.dead_sound = pygame.mixer.Sound("sounds/death.wav")
         self.end_game_sound = pygame.mixer.Sound("sounds/round_end.wav")
         self.end_game_sound.set_volume(0.4)
@@ -47,6 +72,11 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
         self.player_sprite = Player((screen_width // 2, screen_height - 200), self.display_surface, self.player_path)
         self.player.add(self.player_sprite)
+
+    def start_music(self):
+        if not self.music_started:
+            self.bg_music.play(loops=-1)
+            self.music_started = True
 
     def scroll_y(self):
         player = self.player.sprite

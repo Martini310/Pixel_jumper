@@ -114,3 +114,19 @@ image from another account, and I couldn't find it again.
 ## Contact
 If you have any questions or ideas for development fell free to contact me via email:</br>
 ```maritn.brzezinski@wp.eu```
+
+## Running in the Browser (Pygbag)
+
+You can run Pixel Jumper in your browser using [Pygbag](https://github.com/pygame-web/pygbag):
+
+1. Install pygbag:
+   ```bash
+   pip install pygbag
+   ```
+2. In your project directory, run:
+   ```bash
+   pygbag --build main.py
+   ```
+3. Open the generated `build/web/index.html` in your browser, or deploy the `build/web` folder to a static web host.
+
+**Note:** Highscores are not available in browser mode due to browser file system limitations.
